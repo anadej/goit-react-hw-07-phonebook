@@ -2,17 +2,22 @@
 
 import { createReducer, combineReducers } from "@reduxjs/toolkit";
 import {
-  addContact,
-  deleteContact,
-  getContacts,
+  getContactsRequest,
+  getContactsSuccess,
+  getContactsError,
+  addContactsRequest,
+  addContactsSuccess,
+  addContactsError,
+  deleteContactsRequest,
+  deleteContactsSuccess,
+  deleteContactsError,
   setFilter,
-  setLoader,
-  setError,
-  resetError,
 } from "./contactsAction";
 
 const itemsReducer = createReducer([], {
-  [addContact]: (state, action) => {
+  [getContactsSuccess]: (_, { payload }) => payload,
+
+  [addContactsSuccess]: (state, action) => {
     if (
       state.some(
         (item) => item.name.toLowerCase() === action.payload.name.toLowerCase()
@@ -24,29 +29,40 @@ const itemsReducer = createReducer([], {
     return [...state, action.payload];
   },
 
-  [deleteContact]: (state, action) =>
+  [deleteContactsSuccess]: (state, action) =>
     state.filter((item) => item.id !== action.payload),
+});
 
-  [getContacts]: (_, { payload }) => payload,
+const isLoadingReducer = createReducer(false, {
+  [getContactsRequest]: () => true,
+  [getContactsSuccess]: () => false,
+  [getContactsError]: () => false,
+  [addContactsRequest]: () => true,
+  [addContactsSuccess]: () => false,
+  [addContactsError]: () => false,
+  [deleteContactsRequest]: () => true,
+  [deleteContactsSuccess]: () => false,
+  [deleteContactsError]: () => false,
+});
+
+const errorReducer = createReducer("", {
+  [getContactsRequest]: () => "",
+  [getContactsError]: (_, { payload }) => payload,
+  [addContactsRequest]: () => "",
+  [addContactsError]: (_, { payload }) => payload,
+  [deleteContactsRequest]: () => "",
+  [deleteContactsError]: (_, { payload }) => payload,
 });
 
 const filterReducer = createReducer("", {
   [setFilter]: (_, action) => action.payload,
 });
 
-const isLoadingReducer = createReducer(false, {
-  [setLoader]: (state) => !state,
-});
-
-const errorReducer = createReducer("", {
-  [setError]: (_, { payload }) => payload,
-  [resetError]: () => "",
-});
-
 const contactsReducer = combineReducers({
   items: itemsReducer,
   filter: filterReducer,
   isLoading: isLoadingReducer,
+  error: errorReducer,
 });
 
 export default contactsReducer;

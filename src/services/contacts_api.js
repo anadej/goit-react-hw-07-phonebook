@@ -18,7 +18,7 @@ export const getContacts = async () => {
 export const addContact = async (contact) => {
   try {
     const response = await axios.post(baseURL + "/contacts.json", contact);
-    return response.data;
+    return { ...contact, id: response.data.name };
   } catch (error) {
     throw new Error(error);
   }
